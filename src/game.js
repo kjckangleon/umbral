@@ -379,42 +379,59 @@ export class Game {
 
   tryExtract() {
     const p = this.player;
-    // find nearest dead enemy in 220 range
-    let target = null, bd = 220;
-    for (const e of this.world.enemies) {
-      if (!e.dead) continue;
-      if (e.extracted) continue;
-      const d = dist(p.x, p.y, e.x, e.y);
-      if (d < bd) { bd = d; target = e; }
-    }
-    if (!target) { sfx.warn(); floatNumber(p.x, p.y - 40, 'NO CORPSE', 'miss', this.cam); return; }
-    const successP = clamp(p.shadowAffinity + (target.tier === 'boss' ? -0.3 : target.tier === 'elite' ? -0.05 : 0.15), 0.1, 0.95);
-    target.extracted = true;
-    if (Math.random() < successP) {
-      const sh = Shadow.fromEnemy(target);
-      sh.summonId = sh.id;
-      // store dormant
-      const dormant = {
-        summonId: sh.summonId, name: sh.name, glyph: sh.glyph,
-        sourceType: target.type, tierSrc: target.tier, level: target.level,
-        commander: target.tier !== 'normal',
-        hpMax: sh.hpMax, atk: sh.atk, r: target.r
-      };
-      p.shadowPool.push(dormant);
-      // also summon active if room
-      if (this.world.shadows.filter(s => !s.dead).length < p.maxActive) {
-        sh.x = target.x; sh.y = target.y;
-        this.world.shadows.push(sh);
-      }
-      p.shadowsExtracted++;
-      sfx.extract();
-      this.spawnExtractFx(target.x, target.y);
-      this.shake(10);
-      floatNumber(target.x, target.y - 30, 'ARISE', 'shadow', this.cam);
-      if (p.shadowsExtracted === 1) showAbyssLines(SYS_VOICE.firstExtract, 'gold');
-    } else {
+    const RADIUS = 240;
+    // find every unextracted corpse within radius
+    const corpses = this.world.enemies.filter(e => e.dead && !e.extracted && dist(p.x, p.y, e.x, e.y) < RADIUS);
+    if (corpses.length === 0) {
       sfx.warn();
-      floatNumber(target.x, target.y - 30, 'SOUL ESCAPED', 'miss', this.cam);
+      floatNumber(p.x, p.y - 40, 'NO CORPSES', 'miss', this.cam);
+      return;
+    }
+
+    // AOE ring fx
+    this.particles.push({ kind: 'arc', x: p.x, y: p.y, ang: 0, range: RADIUS, arc: TAU, life: 0.5, max: 0.5 });
+    sfx.extract();
+    this.shake(12);
+
+    let raised = 0, escaped = 0;
+    for (const target of corpses) {
+      target.extracted = true;
+      const successP = clamp(
+        p.shadowAffinity + (target.tier === 'boss' ? -0.3 : target.tier === 'elite' ? -0.05 : 0.15),
+        0.1, 0.95
+      );
+      this.spawnExtractFx(target.x, target.y);
+      if (Math.random() < successP) {
+        const sh = Shadow.fromEnemy(target);
+        sh.summonId = sh.id;
+        const dormant = {
+          summonId: sh.summonId, name: sh.name, glyph: sh.glyph,
+          sourceType: target.type, tierSrc: target.tier, level: target.level,
+          commander: target.tier !== 'normal',
+          hpMax: sh.hpMax, atk: sh.atk, r: target.r
+        };
+        p.shadowPool.push(dormant);
+        // active up to maxActive
+        if (this.world.shadows.filter(s => !s.dead).length < p.maxActive) {
+          sh.x = target.x; sh.y = target.y;
+          this.world.shadows.push(sh);
+        }
+        p.shadowsExtracted++;
+        raised++;
+        floatNumber(target.x, target.y - 30, 'ARISE', 'shadow', this.cam);
+      } else {
+        escaped++;
+        floatNumber(target.x, target.y - 30, 'ESCAPED', 'miss', this.cam);
+      }
+    }
+
+    // summary popup when multiple corpses involved
+    if (corpses.length > 1) {
+      showAbyss('ABYSS INTERFACE', `${raised} risen · ${escaped} escaped`, '', raised ? 'gold' : '');
+    }
+    if (p.shadowsExtracted >= 1 && raised > 0 && p.shadowsExtracted === raised) {
+      // first ever extract
+      showAbyssLines(SYS_VOICE.firstExtract, 'gold');
     }
   }
 

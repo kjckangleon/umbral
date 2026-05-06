@@ -34,7 +34,7 @@ export const SKILLS = {
   },
   extract: {
     id: 'extract', name: 'ARISE', icon: '☠', cost: 0, cd: 1.5, type: 'extract', slot: 4,
-    desc: 'Aim at a slain enemy. Extract their Echo as a shadow under your command. Chance scales with SHADOW POWER.',
+    desc: 'Channel the Abyss. Every slain enemy within range yields its Echo as a shadow. Success scales with SHADOW POWER.',
     base: {},
     unlocked: true, equippable: true, level: 1
   },
