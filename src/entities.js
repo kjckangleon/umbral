@@ -92,7 +92,7 @@ export class Player extends Entity {
     this.combo = 0; this.comboT = 0;
     this.shadowPool = []; // dormant
     this.activeShadows = []; // summoned in field (refs)
-    this.maxActive = 3;
+    this.maxActive = 4;
     this.kills = 0;
     this.shadowsExtracted = 0;
     this.rank = 'E';
@@ -110,7 +110,7 @@ export class Player extends Entity {
     this.crit = 0.05 + this.stats.per * 0.012 + (eq.crit ?? 0) * 0.01;
     this.shadowAffinity = 0.10 + this.stats.shadow * 0.03 + (eq.shadow ?? 0) * 0.02;
     this.lifesteal = (eq.lifesteal ?? 0) * 0.01;
-    this.maxActive = 2 + Math.floor(this.stats.shadow / 4);
+    this.maxActive = Math.min(12, 4 + this.stats.shadow + (eq.shadow ?? 0));
     this.hp = Math.min(this.hp, this.hpMax);
     this.mp = Math.min(this.mp, this.mpMax);
     // rank derived from level
