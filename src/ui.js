@@ -55,10 +55,95 @@ const hud = {
   rank: $('#hud-rank'),
   zone: $('#hud-zone'),
   shadowList: $('#shadow-list'),
-  skillEls: $$('.hud-skills .skill')
+  skillEls: $$('.hud-skills .skill'),
+  mini: $('#minimap')
 };
 
-export function updateHUD(p) {
+// minimap renderer ---------------------------------------------------------
+function drawMinimap(p, w) {
+  const c = hud.mini;
+  if (!c || !c.getContext || !w || !w.grid) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // background
+  ctx.fillStyle = 'rgba(5,4,12,.85)';
+  ctx.fillRect(0, 0, W, H);
+
+  // fit map to canvas
+  const ts = w.tileSize;
+  const mapW = w.w * ts, mapH = w.h * ts;
+  const scale = Math.min(W / mapW, H / mapH);
+  const ox = (W - mapW * scale) / 2;
+  const oy = (H - mapH * scale) / 2;
+
+  // floors as filled cells, walls left dark
+  ctx.fillStyle = 'rgba(160,107,255,.18)';
+  for (let y = 0; y < w.h; y++) {
+    for (let x = 0; x < w.w; x++) {
+      if (w.grid[y][x] === 1) {
+        ctx.fillRect(ox + x * ts * scale, oy + y * ts * scale,
+                     Math.max(1, ts * scale), Math.max(1, ts * scale));
+      }
+    }
+  }
+
+  // exit portal
+  if (typeof w.exitX === 'number') {
+    const ex = ox + w.exitX * scale;
+    const ey = oy + w.exitY * scale;
+    ctx.fillStyle = '#a06bff';
+    ctx.shadowColor = '#a06bff'; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.arc(ex, ey, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // enemies
+  if (w.enemies) {
+    for (const e of w.enemies) {
+      if (e.dead) continue;
+      const ex = ox + e.x * scale;
+      const ey = oy + e.y * scale;
+      ctx.fillStyle = e.tier === 'boss' ? '#ff3b6b'
+                    : e.tier === 'elite' ? '#ffb86b'
+                    : '#ff7aa6';
+      ctx.fillRect(ex - 1.5, ey - 1.5, 3, 3);
+    }
+  }
+
+  // shadows
+  if (w.shadows) {
+    for (const s of w.shadows) {
+      if (s.dead) continue;
+      ctx.fillStyle = '#7af5ff';
+      ctx.fillRect(ox + s.x * scale - 1, oy + s.y * scale - 1, 2, 2);
+    }
+  }
+
+  // player (with facing arrow)
+  const px = ox + p.x * scale;
+  const py = oy + p.y * scale;
+  ctx.fillStyle = '#fff';
+  ctx.shadowColor = '#a06bff'; ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.arc(px, py, 2.4, 0, Math.PI * 2); ctx.fill();
+  if (typeof p.facing === 'number') {
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(px + Math.cos(p.facing) * 7, py + Math.sin(p.facing) * 7);
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 0;
+
+  // border
+  ctx.strokeStyle = 'rgba(160,107,255,.4)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
+}
+
+export function updateHUD(p, world) {
   hud.hp.style.width = (p.hp / p.hpMax * 100) + '%';
   hud.hpT.textContent = `${Math.ceil(p.hp)}/${p.hpMax}`;
   hud.mp.style.width = (p.mp / p.mpMax * 100) + '%';
@@ -111,6 +196,9 @@ export function updateHUD(p) {
     row.innerHTML = `<span class="nm">+ ${p.shadowPool.length - 8} more</span>`;
     hud.shadowList.appendChild(row);
   }
+
+  // minimap
+  drawMinimap(p, world);
 }
 
 export function setZoneText(t) {

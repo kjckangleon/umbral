@@ -676,7 +676,7 @@ export class Game {
     }
 
     // HUD
-    updateHUD(p);
+    updateHUD(p, this.world);
     endFrame();
   }
 

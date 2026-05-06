@@ -252,49 +252,41 @@ export function drawDungeon(ctx, d, cam, w, h, t, player) {
   }
 }
 
-// === LIGHT PASS — renders a multiply layer of light pools over scene ===
+// === LIGHT PASS — soft atmospheric tint, no fog of war ===
 export function drawLighting(ctx, d, cam, w, h, t, player, extras = []) {
-  const buf = getLightBuffer(w, h);
-  const lc = buf.getContext('2d');
-  // base darkness — varies by biome ambient
-  const ambient = d.biome === 'void' ? 0.92
-                : d.biome === 'crypt' ? 0.85
-                : d.biome === 'cathedral' ? 0.82
-                : d.biome === 'frost' ? 0.55
-                : d.biome === 'mirror' ? 0.7
-                : d.biome === 'tower' ? 0.88
-                : d.biome === 'urban' ? 0.7
-                : 0.7;
-  lc.fillStyle = `rgba(2,0,8,${ambient})`;
-  lc.fillRect(0, 0, w, h);
+  // Subtle global mood-tint per biome instead of a darkness mask.
+  // Keeps full visibility of the map while preserving atmosphere.
+  const tint = d.biome === 'void'      ? 'rgba(20,8,40,0.18)'
+             : d.biome === 'crypt'     ? 'rgba(40,8,16,0.16)'
+             : d.biome === 'cathedral' ? 'rgba(30,18,50,0.16)'
+             : d.biome === 'frost'     ? 'rgba(8,24,48,0.10)'
+             : d.biome === 'mirror'    ? 'rgba(16,16,40,0.14)'
+             : d.biome === 'tower'     ? 'rgba(24,8,40,0.18)'
+             : d.biome === 'urban'     ? 'rgba(16,12,30,0.14)'
+             :                            'rgba(20,12,32,0.14)';
+  ctx.save();
+  ctx.fillStyle = tint;
+  ctx.fillRect(0, 0, w, h);
 
-  // additive mode — lights cut into darkness
-  lc.globalCompositeOperation = 'destination-out';
-
-  // player light
+  // Soft additive light pools (torches, player aura, boss aura) for atmosphere
+  ctx.globalCompositeOperation = 'lighter';
   if (player) {
-    const px = player.x - cam.x, py = player.y - cam.y;
-    drawRadialLight(lc, px, py, 220, '#a06bff', 0.85);
+    drawRadialLight(ctx, player.x - cam.x, player.y - cam.y, 180, '#a06bff', 0.18);
   }
-
-  // torches
   for (const p of d.props) {
     if (p.type !== 'torch') continue;
     const px = p.x - cam.x, py = p.y - cam.y;
     if (px < -100 || py < -100 || px > w + 100 || py > h + 100) continue;
     const flick = 1 + Math.sin(t * 8 + p.x) * 0.08;
-    drawRadialLight(lc, px, py - 4, 160 * flick, '#ffae5b', 0.9);
+    drawRadialLight(ctx, px, py - 4, 130 * flick, '#ffae5b', 0.22);
   }
-  // exit portal light
   if (!d.isBossFloor || d.boss?.dead) {
-    drawRadialLight(lc, d.exitX - cam.x, d.exitY - cam.y, 180, '#a06bff', 0.7);
+    drawRadialLight(ctx, d.exitX - cam.x, d.exitY - cam.y, 160, '#a06bff', 0.20);
   }
-  // extra lights (boss aura, projectiles, etc.)
-  for (const e of extras) drawRadialLight(lc, e.x - cam.x, e.y - cam.y, e.r, e.color, e.intensity);
-
-  lc.globalCompositeOperation = 'source-over';
-  // composite onto main: multiply darkness over scene
-  ctx.drawImage(buf, 0, 0);
+  for (const e of extras) {
+    drawRadialLight(ctx, e.x - cam.x, e.y - cam.y, e.r, e.color, (e.intensity ?? 0.5) * 0.35);
+  }
+  ctx.restore();
 }
 
 // solid check (for collision)
