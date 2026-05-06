@@ -1,7 +1,7 @@
 // === Input ============================================================
 const keys = new Set();
 const pressed = new Set();   // single-frame
-const mouse = { x: 0, y: 0, down: false, clicked: false, rdown: false };
+const mouse = { x: 0, y: 0, down: false, clicked: false, rdown: false, lastMoved: 0 };
 
 // touch-driven analog inputs (consumed by game.js)
 const touch = {
@@ -26,6 +26,7 @@ addEventListener('mousemove', e => {
   const oy = r.top + (r.height - ch) / 2;
   mouse.x = (e.clientX - ox) / scale;
   mouse.y = (e.clientY - oy) / scale;
+  mouse.lastMoved = performance.now();
 });
 addEventListener('mousedown', e => {
   if (e.button === 0) { mouse.down = true; mouse.clicked = true; }

@@ -9,8 +9,13 @@ const $$ = sel => [...document.querySelectorAll(sel)];
 
 // === Abyss Interface popups ===
 const abyss = $('#abyss');
+const MAX_ABYSS = 4;
 export function showAbyss(head, body, foot, kind = '') {
   abyss.classList.remove('hidden');
+  // cap stack: drop oldest beyond limit
+  while (abyss.children.length >= MAX_ABYSS) {
+    abyss.children[0].remove();
+  }
   const card = document.createElement('div');
   card.className = `abyss-card ${kind}`;
   card.innerHTML = `<div class="head">${head}</div><div class="body">${body}</div>${foot ? `<div class="foot">${foot}</div>` : ''}`;
@@ -18,12 +23,12 @@ export function showAbyss(head, body, foot, kind = '') {
   sfx.systemPing();
   setTimeout(() => {
     card.classList.add('out');
-    setTimeout(() => card.remove(), 500);
-  }, 4400);
+    setTimeout(() => card.remove(), 350);
+  }, 2600);
 }
 
 export function showAbyssLines(lines, kind = '') {
-  lines.forEach((ln, i) => setTimeout(() => showAbyss('ABYSS INTERFACE', ln, '', kind), i * 700));
+  lines.forEach((ln, i) => setTimeout(() => showAbyss('ABYSS INTERFACE', ln, '', kind), i * 600));
 }
 
 // === Floating combat numbers ===

@@ -177,8 +177,12 @@ export function drawRadialLight(ctx, x, y, r, color = '#ffae5b', intensity = 1) 
 }
 
 function hexA(hex, a) {
-  if (hex.startsWith('hsl')) {
-    // hsl(h, s%, l%) -> hsla(h, s%, l%, a)
+  if (typeof hex !== 'string') return `rgba(160,107,255,${a})`;
+  if (hex.startsWith('hsla(') || hex.startsWith('rgba(')) {
+    // already has alpha — replace it
+    return hex.replace(/,\s*[\d.]+\)\s*$/, `,${a})`);
+  }
+  if (hex.startsWith('hsl(')) {
     return hex.replace(/^hsl\(/, 'hsla(').replace(/\)$/, `,${a})`);
   }
   if (hex.startsWith('rgb(')) {

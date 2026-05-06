@@ -85,22 +85,23 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;background:#05060a;ima
   background:rgba(5,4,12,.6);backdrop-filter:blur(4px)}
 
 /* === Abyss Interface popups === */
-#abyss{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:20;pointer-events:none;
-  display:flex;flex-direction:column;gap:8px;align-items:center;width:520px}
-.abyss-card{border:1px solid var(--vio);background:linear-gradient(180deg,rgba(20,10,40,.95),rgba(8,4,18,.95));
-  padding:14px 22px;color:#fff;letter-spacing:.15em;font-size:13px;width:100%;
-  box-shadow:var(--glow);position:relative;animation:abyssIn .5s cubic-bezier(.2,.8,.2,1)}
-.abyss-card::before{content:"";position:absolute;inset:0;border:1px solid rgba(160,107,255,.2);transform:scale(1.02);pointer-events:none}
-.abyss-card .head{color:var(--vio);font-size:10px;letter-spacing:.5em;margin-bottom:4px}
-.abyss-card .body{color:#fff}
-.abyss-card .foot{color:var(--dim);font-size:10px;margin-top:4px;letter-spacing:.3em}
-.abyss-card.warn{border-color:var(--blood);box-shadow:0 0 22px rgba(255,59,107,.5)}
+#abyss{position:fixed;top:14px;right:14px;left:auto;transform:none;z-index:20;pointer-events:none;
+  display:flex;flex-direction:column;gap:5px;align-items:flex-end;width:300px;max-width:42vw}
+.abyss-card{border:1px solid var(--vio);background:linear-gradient(180deg,rgba(20,10,40,.92),rgba(8,4,18,.92));
+  padding:7px 12px;color:#fff;letter-spacing:.1em;font-size:11px;width:100%;
+  box-shadow:0 0 14px rgba(160,107,255,.35);position:relative;animation:abyssIn .35s cubic-bezier(.2,.8,.2,1);
+  backdrop-filter:blur(4px);line-height:1.35}
+.abyss-card::before{content:"";position:absolute;inset:0;border:1px solid rgba(160,107,255,.18);transform:scale(1.015);pointer-events:none}
+.abyss-card .head{color:var(--vio);font-size:9px;letter-spacing:.35em;margin-bottom:2px;opacity:.9}
+.abyss-card .body{color:#fff;font-size:11px}
+.abyss-card .foot{color:var(--dim);font-size:9px;margin-top:2px;letter-spacing:.25em}
+.abyss-card.warn{border-color:var(--blood);box-shadow:0 0 16px rgba(255,59,107,.45)}
 .abyss-card.warn .head{color:var(--blood)}
 .abyss-card.gold{border-color:var(--gold)}
 .abyss-card.gold .head{color:var(--gold)}
-@keyframes abyssIn{from{transform:translateY(-12px) scaleX(.6);opacity:0}to{opacity:1;transform:none}}
-.abyss-card.out{animation:abyssOut .5s forwards}
-@keyframes abyssOut{to{opacity:0;transform:translateY(-12px) scaleX(.4)}}
+@keyframes abyssIn{from{transform:translateX(20px);opacity:0}to{opacity:1;transform:none}}
+.abyss-card.out{animation:abyssOut .35s forwards}
+@keyframes abyssOut{to{opacity:0;transform:translateX(20px)}}
 
 /* === floating combat numbers === */
 #floaters{position:fixed;inset:0;pointer-events:none;z-index:15;font-family:inherit}
@@ -269,8 +270,10 @@ body.mobile .hud-shadows{display:none}              /* save space; menu has list
 body.mobile .hud-skills{display:none}               /* replaced by touch buttons */
 body.mobile .hud-mini{display:none}
 body.mobile .hud-zone{font-size:18px;letter-spacing:.3em;top:35%}
-body.mobile #abyss{width:90%;top:54px;font-size:11px}
-body.mobile .abyss-card{padding:7px 12px;font-size:11px}
+body.mobile #abyss{width:60%;max-width:60vw;top:48px;right:8px;font-size:10px}
+body.mobile .abyss-card{padding:5px 9px;font-size:10px}
+body.mobile .abyss-card .head{font-size:8px;letter-spacing:.25em}
+body.mobile .abyss-card .body{font-size:10px}
 body.mobile #boot .boot-title{font-size:42px;letter-spacing:.3em}
 body.mobile #boot .boot-glyph{font-size:64px}
 body.mobile #boot-start{padding:14px 20px;font-size:12px}

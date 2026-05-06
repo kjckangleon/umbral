@@ -497,15 +497,22 @@ export class Game {
       if (ml > 1) { mx /= ml; my /= ml; }
       p.vx = mx * p.spd;
       p.vy = my * p.spd;
-      // facing — touch aim stick > keyboard mouse
+      // facing — priority: touch aim stick > recent mouse motion > WASD direction
+      const usingKeyboard = (performance.now() - (mouse.lastMoved || 0)) > 1500;
       if (touch.aim.active && (Math.abs(touch.aim.x) + Math.abs(touch.aim.y) > 0.15)) {
         p.facing = Math.atan2(touch.aim.y, touch.aim.x);
+      } else if (usingKeyboard && (mx || my)) {
+        // keyboard-only: face the direction WASD is pointing
+        p.facing = Math.atan2(my, mx);
+      } else if (usingKeyboard) {
+        // keep last facing — don't snap to mouse if it's idle
       } else {
         p.facing = angle(p.x, p.y, mouse.x + this.cam.x, mouse.y + this.cam.y);
       }
 
-      // basic attack — left mouse
-      if (mouse.down && p.attackCd <= 0 && p.staggerT <= 0) {
+      // basic attack — left mouse OR K/J keys
+      const attackHeld = mouse.down || key('k') || key('j');
+      if (attackHeld && p.attackCd <= 0 && p.staggerT <= 0) {
         p.attackCd = 0.32;
         p.combo = (p.combo + 1) % 4;
         p.comboT = 1.2;
@@ -514,8 +521,8 @@ export class Game {
         this.meleeArc(p, sk.base.range + p.combo * 6, sk.base.arc, dmg, p.facing, true);
         sfx.swing();
       }
-      // dodge / dash — space or right mouse
-      if ((pressedKey(' ') || mouse.rdown) && p.dashCd <= 0 && p.staggerT <= 0) {
+      // dodge / dash — space, L, or right mouse
+      if ((pressedKey(' ') || pressedKey('l') || mouse.rdown) && p.dashCd <= 0 && p.staggerT <= 0) {
         p.dashCd = 0.7;
         const sk = SKILLS.dash;
         p.vx = Math.cos(p.facing) * sk.base.dist * 5;
@@ -743,7 +750,7 @@ export class Game {
     if (w.isHub) {
       ctx.fillStyle = 'rgba(255,255,255,.6)';
       ctx.font = '13px Rajdhani'; ctx.textAlign = 'center';
-      ctx.fillText('WASD MOVE · MOUSE AIM · LMB ATTACK · SPACE/RMB DODGE+PARRY', WIDTH / 2, HEIGHT - 30);
+      ctx.fillText('WASD MOVE · MOUSE OR WASD AIM · LMB / K ATTACK · SPACE / L DODGE', WIDTH / 2, HEIGHT - 30);
       ctx.fillText('1-4 SKILLS · R ULT · TAB MENU · Q EXTRACT', WIDTH / 2, HEIGHT - 12);
     }
 
