@@ -34,9 +34,15 @@ export const SKILLS = {
   },
   extract: {
     id: 'extract', name: 'ARISE', icon: '☠', cost: 0, cd: 1.5, type: 'extract', slot: 4,
-    desc: 'Channel the Abyss. Every slain enemy within range yields its Echo as a shadow. Success scales with SHADOW POWER.',
-    base: {},
+    desc: 'Channel the Abyss. Every slain enemy within range yields its Echo as a shadow. Newly raised echoes manifest beside you. Success scales with SHADOW POWER.',
+    base: { radius: 240 },
     unlocked: true, equippable: true, level: 1
+  },
+  legion: {
+    id: 'legion', name: 'SHADOW ARMY', icon: '⛧', cost: 35, cd: 12, type: 'legion', slot: 3,
+    desc: 'Come forth, my soldiers. Summon every dormant shadow from the Abyss to fight at your side, up to your active limit.',
+    base: {},
+    unlocked: false, unlockLv: 3, equippable: true, level: 1
   },
   domain: {
     id: 'domain', name: 'BE THRONED', icon: '◉', cost: 60, cd: 60, type: 'ult', slot: 'r',

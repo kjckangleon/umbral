@@ -340,6 +340,8 @@ export class Game {
       sfx.cast();
     } else if (sk.type === 'extract') {
       this.tryExtract();
+    } else if (sk.type === 'legion') {
+      this.summonLegion();
     } else if (sk.type === 'ult') {
       p.domainT = sk.base.dur;
       // summon all shadows up to max
@@ -380,7 +382,7 @@ export class Game {
   tryExtract() {
     const p = this.player;
     const RADIUS = 240;
-    // find every unextracted corpse within radius
+    // every unextracted corpse within radius
     const corpses = this.world.enemies.filter(e => e.dead && !e.extracted && dist(p.x, p.y, e.x, e.y) < RADIUS);
     if (corpses.length === 0) {
       sfx.warn();
@@ -394,6 +396,7 @@ export class Game {
     this.shake(12);
 
     let raised = 0, escaped = 0;
+    const wasFirst = p.shadowsExtracted === 0;
     for (const target of corpses) {
       target.extracted = true;
       const successP = clamp(
@@ -411,7 +414,7 @@ export class Game {
           hpMax: sh.hpMax, atk: sh.atk, r: target.r
         };
         p.shadowPool.push(dormant);
-        // active up to maxActive
+        // newly raised: manifest beside the corpse if active slots remain
         if (this.world.shadows.filter(s => !s.dead).length < p.maxActive) {
           sh.x = target.x; sh.y = target.y;
           this.world.shadows.push(sh);
@@ -425,14 +428,49 @@ export class Game {
       }
     }
 
-    // summary popup when multiple corpses involved
     if (corpses.length > 1) {
       showAbyss('ABYSS INTERFACE', `${raised} risen · ${escaped} escaped`, '', raised ? 'gold' : '');
     }
-    if (p.shadowsExtracted >= 1 && raised > 0 && p.shadowsExtracted === raised) {
-      // first ever extract
+    if (wasFirst && raised > 0) {
       showAbyssLines(SYS_VOICE.firstExtract, 'gold');
     }
+  }
+
+  // === Shadow Army — summon all dormant shadows up to maxActive
+  summonLegion() {
+    const p = this.player;
+    const activeIds = new Set(this.world.shadows.filter(s => !s.dead).map(s => s.summonId));
+    const slots = p.maxActive - activeIds.size;
+    if (slots <= 0) {
+      sfx.warn();
+      floatNumber(p.x, p.y - 40, 'LEGION FULL', 'miss', this.cam);
+      return;
+    }
+    // pick dormant shadows not currently active, prioritize commanders
+    const dormant = p.shadowPool
+      .filter(s => !activeIds.has(s.summonId))
+      .sort((a, b) => (b.commander ? 1 : 0) - (a.commander ? 1 : 0));
+    if (dormant.length === 0) {
+      sfx.warn();
+      floatNumber(p.x, p.y - 40, 'NO SHADOWS', 'miss', this.cam);
+      return;
+    }
+
+    const summoned = dormant.slice(0, slots);
+    sfx.shadow();
+    this.shake(14);
+    cinematic('COME FORTH.', 1200);
+    for (let i = 0; i < summoned.length; i++) {
+      const s = summoned[i];
+      const ang = (i / summoned.length) * TAU + this.t;
+      const sx = p.x + Math.cos(ang) * 60;
+      const sy = p.y + Math.sin(ang) * 60;
+      const sh = new Shadow(sx, sy, s);
+      sh.summonId = s.summonId;
+      this.world.shadows.push(sh);
+      this.spawnExtractFx(sx, sy);
+    }
+    showAbyss('SHADOW ARMY', `${summoned.length} risen`, '', 'gold');
   }
 
   // === Particles ===
