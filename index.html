@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#05060a" />
+  <title>UMBRAL // Sovereign of the Hollow Veil</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="boot">
+    <div class="boot-glyph">◈</div>
+    <div class="boot-title">UMBRAL</div>
+    <div class="boot-sub">Sovereign of the Hollow Veil</div>
+    <div class="boot-line"></div>
+    <button id="boot-start">[ ENTER THE VEIL ]</button>
+    <div class="boot-foot">Year 0021 — Post Convergence</div>
+  </div>
+
+  <canvas id="game" width="1280" height="720"></canvas>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-top">
+      <div class="hud-name">
+        <span id="hud-name">VEILWALKER</span>
+        <span id="hud-rank" class="rank-e">RANK · E</span>
+      </div>
+      <div class="hud-bars">
+        <div class="bar hp"><div id="bar-hp" class="bar-fill"></div><span id="bar-hp-text">100/100</span></div>
+        <div class="bar mp"><div id="bar-mp" class="bar-fill"></div><span id="bar-mp-text">50/50</span></div>
+        <div class="bar xp"><div id="bar-xp" class="bar-fill"></div><span id="bar-xp-text">LV 1 — 0/100</span></div>
+      </div>
+    </div>
+
+    <div class="hud-skills">
+      <div class="skill" data-key="1"><div class="ico">⚔</div><span class="kbd">1</span><div class="cd"></div></div>
+      <div class="skill" data-key="2"><div class="ico">✦</div><span class="kbd">2</span><div class="cd"></div></div>
+      <div class="skill" data-key="3"><div class="ico">☽</div><span class="kbd">3</span><div class="cd"></div></div>
+      <div class="skill" data-key="4"><div class="ico">☠</div><span class="kbd">4</span><div class="cd"></div></div>
+      <div class="skill ult" data-key="r"><div class="ico">◉</div><span class="kbd">R</span><div class="cd"></div></div>
+    </div>
+
+    <div class="hud-shadows">
+      <div class="hud-label">SHADOW LEGION</div>
+      <div id="shadow-list"></div>
+    </div>
+
+    <div class="hud-zone" id="hud-zone">— THE QUIET CITY —</div>
+    <div class="hud-mini" id="minimap"></div>
+  </div>
+
+  <!-- System overlay (Abyss Interface popups) -->
+  <div id="abyss" class="hidden"></div>
+
+  <!-- Floating combat numbers -->
+  <div id="floaters"></div>
+
+  <!-- Pause / Menus -->
+  <div id="menu" class="hidden">
+    <div class="menu-tabs">
+      <button data-tab="status" class="active">STATUS</button>
+      <button data-tab="skills">SKILLS</button>
+      <button data-tab="shadows">SHADOWS</button>
+      <button data-tab="inventory">INVENTORY</button>
+      <button data-tab="quests">QUESTS</button>
+      <button data-tab="lore">CODEX</button>
+      <button data-tab="map">GATES</button>
+    </div>
+    <div class="menu-body">
+      <section data-tab="status" class="active"></section>
+      <section data-tab="skills"></section>
+      <section data-tab="shadows"></section>
+      <section data-tab="inventory"></section>
+      <section data-tab="quests"></section>
+      <section data-tab="lore"></section>
+      <section data-tab="map"></section>
+    </div>
+    <div class="menu-foot">[ESC] close · [TAB] cycle</div>
+  </div>
+
+  <!-- Cinematic letterbox -->
+  <div id="cinematic" class="hidden">
+    <div class="bar-top"></div>
+    <div class="cine-text"></div>
+    <div class="bar-bot"></div>
+  </div>
+
+  <!-- Death screen -->
+  <div id="death" class="hidden">
+    <div class="death-glyph">◈</div>
+    <div class="death-title">YOU WILL NOT KNEEL.</div>
+    <div class="death-sub">The Abyss watches. Rise.</div>
+    <button id="death-revive">[ REFORGE ]</button>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
