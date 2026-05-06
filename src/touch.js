@@ -97,6 +97,50 @@ export function initTouchControls() {
   bindStick(document.getElementById('tc-move'), touch.move);
   bindStick(document.getElementById('tc-aim'),  touch.aim);
 
+  // ---- rotation hint (JS-driven, dismissible) -------------------------
+  const rot = document.createElement('div');
+  rot.id = 'rotate-hint';
+  rot.innerHTML = `
+    <div class="rh-card">
+      <div class="rh-glyph">⟳</div>
+      <div class="rh-title">ROTATE FOR BEST EXPERIENCE</div>
+      <div class="rh-sub">Landscape unlocks the full HUD</div>
+      <button class="rh-btn" id="rh-dismiss">PLAY ANYWAY</button>
+    </div>
+  `;
+  document.body.appendChild(rot);
+  let dismissed = sessionStorage.getItem('umbral-rh-dismissed') === '1';
+  const portraitMQ = matchMedia('(orientation: portrait)');
+  const updateRot = () => {
+    const portrait = portraitMQ.matches || innerHeight > innerWidth;
+    rot.classList.toggle('show', portrait && !dismissed);
+    document.body.classList.toggle('portrait', portrait);
+  };
+  portraitMQ.addEventListener?.('change', updateRot);
+  addEventListener('resize', updateRot);
+  addEventListener('orientationchange', () => setTimeout(updateRot, 100));
+  document.getElementById('rh-dismiss').addEventListener('click', () => {
+    dismissed = true;
+    sessionStorage.setItem('umbral-rh-dismissed', '1');
+    updateRot();
+  });
+  updateRot();
+
+  // ---- fullscreen toggle button ---------------------------------------
+  const fs = document.createElement('button');
+  fs.id = 'fs-btn';
+  fs.innerHTML = '⛶';
+  fs.title = 'Fullscreen';
+  document.body.appendChild(fs);
+  fs.addEventListener('click', () => {
+    const el = document.documentElement;
+    if (!document.fullscreenElement) {
+      (el.requestFullscreen?.() || el.webkitRequestFullscreen?.());
+    } else {
+      (document.exitFullscreen?.() || document.webkitExitFullscreen?.());
+    }
+  });
+
   // ---- buttons ---------------------------------------------------------
   for (const btn of root.querySelectorAll('.tc-btn')) {
     const k = btn.dataset.key;

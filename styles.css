@@ -287,27 +287,57 @@ body.mobile .menu-foot{display:none}
 body.mobile .death-title{font-size:24px;letter-spacing:.3em}
 body.mobile .death-sub{font-size:11px}
 
-/* --- portrait orientation hint (above everything) --- */
-@media (orientation:portrait) and (max-width:900px){
-  body.mobile::after{
-    content:"⟳  ROTATE FOR BEST EXPERIENCE";
-    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-    color:var(--vio);letter-spacing:.4em;font-size:12px;text-shadow:0 0 18px var(--vio);
-    background:rgba(5,4,12,.9);padding:12px 18px;border:1px solid var(--line);
-    z-index:100;pointer-events:none;animation:pulse 2s infinite;
-  }
-}
+/* --- portrait orientation hint (JS-driven, dismissible) --- */
+#rotate-hint{position:fixed;inset:0;z-index:120;display:none;
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,rgba(20,10,40,.92),rgba(0,0,0,.96) 80%);
+  pointer-events:none;animation:fade .3s}
+#rotate-hint.show{display:flex;pointer-events:auto}
+#rotate-hint .rh-card{display:flex;flex-direction:column;align-items:center;gap:14px;
+  padding:28px 32px;border:1px solid var(--vio);background:rgba(8,4,18,.95);
+  box-shadow:var(--glow);max-width:80vw;text-align:center}
+#rotate-hint .rh-glyph{font-size:56px;color:var(--vio);text-shadow:var(--glow);
+  animation:spin 4s linear infinite}
+#rotate-hint .rh-title{color:#fff;letter-spacing:.4em;font-size:13px}
+#rotate-hint .rh-sub{color:var(--dim);letter-spacing:.25em;font-size:10px}
+#rotate-hint .rh-btn{background:transparent;border:1px solid var(--cyan);color:var(--cyan);
+  padding:10px 20px;font-family:inherit;letter-spacing:.3em;font-size:11px;cursor:pointer;
+  margin-top:6px;transition:.2s}
+#rotate-hint .rh-btn:hover,#rotate-hint .rh-btn:active{background:var(--cyan);color:#000}
+
+/* --- fullscreen toggle (top-left mobile) --- */
+#fs-btn{position:fixed;top:10px;left:10px;z-index:30;display:none;
+  width:34px;height:34px;border-radius:17px;border:1px solid var(--line);
+  background:rgba(10,8,24,.7);color:var(--vio);font-size:16px;
+  font-family:inherit;cursor:pointer;
+  text-shadow:0 0 8px rgba(160,107,255,.6);
+  -webkit-tap-highlight-color:transparent}
+body.mobile #fs-btn{display:flex;align-items:center;justify-content:center}
+
+/* --- portrait-mode layout: stack sticks vertically, scale HUD down --- */
+body.portrait #tc-move{left:14px;bottom:14px}
+body.portrait #tc-aim{right:14px;bottom:14px}
+body.portrait .tc-stick{width:100px;height:100px}
+body.portrait .tc-knob{width:42px;height:42px}
+body.portrait .tc-skills{bottom:130px;flex-wrap:wrap;justify-content:center;
+  gap:6px;max-width:90vw;left:50%;transform:translateX(-50%)}
+body.portrait .tc-btn.tc-ult{right:14px;bottom:130px;width:54px;height:54px;font-size:22px}
+body.portrait .tc-btn.tc-dodge{flex-basis:100%;order:99}
+body.portrait .hud-top{width:calc(100% - 60px);left:50px;top:8px}
+body.portrait .hud-zone{font-size:14px;letter-spacing:.2em;top:25%}
+body.portrait #abyss{width:80%;max-width:80vw;top:42px}
 
 /* --- compact layout for small landscape phones (<= ~700x375) --- */
 @media (max-width:700px), (max-height:420px){
-  .tc-stick{width:110px;height:110px;bottom:14px}
-  #tc-move{left:14px} #tc-aim{right:14px}
+  .tc-stick{width:108px;height:108px;bottom:12px}
+  #tc-move{left:12px} #tc-aim{right:12px}
   .tc-knob{width:46px;height:46px}
-  .tc-skills{bottom:18px;gap:6px;max-width:calc(100vw - 270px)}
-  .tc-btn{width:42px;height:42px;font-size:14px}
-  .tc-btn.tc-ult{width:52px;height:52px;font-size:20px;right:130px;bottom:74px}
-  .tc-btn.tc-dodge{height:42px;padding:0 12px;font-size:10px}
-  .tc-btn.tc-util{height:28px;padding:0 10px;font-size:9px}
+  .tc-skills{bottom:18px;gap:8px;max-width:calc(100vw - 260px)}
+  .tc-btn{width:46px;height:46px;font-size:15px}
+  .tc-btn span{font-size:8px;bottom:1px;right:4px}
+  .tc-btn.tc-ult{width:54px;height:54px;font-size:22px;right:124px;bottom:74px}
+  .tc-btn.tc-dodge{height:46px;padding:0 14px;font-size:11px;letter-spacing:.2em}
+  .tc-btn.tc-util{height:30px;padding:0 11px;font-size:10px}
   .tc-hint{display:none}
 }
 
